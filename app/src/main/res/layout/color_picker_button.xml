@@ -1,0 +1,28 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="40dp"
+    android:orientation="horizontal"
+    android:weightSum="10"
+    android:background="@drawable/color_picker_button_border"
+    android:clickable="true"
+    >
+
+    <TextView
+        android:id="@+id/color_text_view"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="8.5"
+        android:text="@string/color"
+        android:gravity="center_vertical"
+        android:textSize="18sp"
+        android:paddingHorizontal="2dp"/>
+
+    <ImageView
+        android:id="@+id/text_color_display"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.5"
+        android:src="@drawable/color_box"
+        android:paddingVertical="4dp"
+        />
+</LinearLayout>

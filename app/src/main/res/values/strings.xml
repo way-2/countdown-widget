@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">countdown-widget</string>
+    <string name="configure">Configure</string>
+    <string name="add_widget">Add widget</string>
+    <string name="app_widget_description">This is an app widget description</string>
+    <string name="event_title">Event Title</string>
+    <string name="days_left_text">Text showing the remaining days in the countdown</string>
+    <string name="color_black_hex">080100</string>
+    <string name="text_color">Text Color</string>
+    <string name="progress_bar_color">Progress Bar Color</string>
+    <string name="background_bar_color">Background Bar Color</string>
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="appwidget_date">appwidget_date</string>
+    <string name="event_date">Event Date</string>
+    <string name="appwidget_text_color">appwidget_text_color</string>
+    <string name="color">Color</string>
+    <string name="calendar_icon"></string>
+</resources>
