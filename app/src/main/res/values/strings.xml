@@ -2,7 +2,7 @@
     <string name="app_name">countdown-widget</string>
     <string name="configure">Configure</string>
     <string name="add_widget">Add widget</string>
-    <string name="app_widget_description">This is an app widget description</string>
+    <string name="app_widget_description">Widget displays a day countdown to a given date</string>
     <string name="event_title">Event Title</string>
     <string name="days_left_text">Text showing the remaining days in the countdown</string>
     <string name="color_black_hex">080100</string>
@@ -28,4 +28,6 @@
     <string name="appwidget_text_color">appwidget_text_color</string>
     <string name="color">Color</string>
     <string name="calendar_icon"></string>
+    <string name="preview">Preview\n</string>
+    <string name="licenses">Licenses</string>
 </resources>

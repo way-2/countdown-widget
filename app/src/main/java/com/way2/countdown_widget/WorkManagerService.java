@@ -29,7 +29,7 @@ public class WorkManagerService {
     public void startWork(Context context, int id) {
         Calendar calendar = Calendar.getInstance();
         long nowMillis = calendar.getTimeInMillis();
-        calendar.set(Calendar.HOUR_OF_DAY, 1);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
         calendar.set(Calendar.MINUTE, 0);
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);

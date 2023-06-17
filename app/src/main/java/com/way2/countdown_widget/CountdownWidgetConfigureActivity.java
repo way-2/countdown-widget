@@ -1,22 +1,32 @@
 package com.way2.countdown_widget;
 
+import static android.app.PendingIntent.getActivity;
 import static com.way2.countdown_widget.CountdownWidget.myDateFormatter;
+import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetBitmap;
+import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetPreviewBitmap;
 
 import android.app.DatePickerDialog;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.skydoves.colorpickerview.ColorEnvelope;
 import com.skydoves.colorpickerview.ColorPickerDialog;
 import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener;
@@ -24,6 +34,8 @@ import com.way2.countdown_widget.databinding.ColorPickerButtonBinding;
 import com.way2.countdown_widget.databinding.CountdownWidgetConfigureBinding;
 import com.way2.countdown_widget.databinding.DatePickerButtonBinding;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
@@ -61,6 +73,8 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
     ColorPickerButtonBinding backgroundColorPickerButtonBinding;
     ColorPickerButtonBinding progressColorPickerButtonBinding;
     DatePickerButtonBinding datePickerButtonBinding;
+    AppCompatImageView previewImageView;
+    Button licenseButton;
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             final Context context = CountdownWidgetConfigureActivity.this;
@@ -120,11 +134,9 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
             final Context context = CountdownWidgetConfigureActivity.this;
             final Calendar c = Calendar.getInstance();
             SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
-            String existingDateString = prefs.getString(PREF_PREFIX_DATE_KEY + mAppWidgetId, "");
-            if (!existingDateString.equals("")) {
-                LocalDate existingLocalDate = LocalDate.parse(existingDateString, myDateFormatter);
-                c.set(existingLocalDate.getYear(), existingLocalDate.getMonthValue(), existingLocalDate.getDayOfMonth());
-            }
+            String existingDateString = prefs.getString(PREF_PREFIX_DATE_KEY + mAppWidgetId, myDateFormatter.format(LocalDate.now()));
+            LocalDate existingLocalDate = LocalDate.parse(existingDateString, myDateFormatter);
+            c.set(existingLocalDate.getYear(), existingLocalDate.getMonthValue(), existingLocalDate.getDayOfMonth());
             int year = c.get(Calendar.YEAR);
             int month = c.get(Calendar.MONTH) - 1;
             int day = c.get(Calendar.DAY_OF_MONTH);
@@ -153,6 +165,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
                                 public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
                                     colorMap.put(TEXT_COLOR,envelope.getColor());
                                     textColorColorView.setColorFilter(envelope.getColor());
+                                    reloadPreview();
                                 }
                             })
                     .show();
@@ -168,6 +181,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
                                 public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
                                     colorMap.put(BACKGROUND_COLOR,envelope.getColor());
                                     backgroundColorColorView.setColorFilter(envelope.getColor());
+                                    reloadPreview();
                                 }
                             })
                     .show();
@@ -183,9 +197,19 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
                                 public void onColorSelected(ColorEnvelope envelope, boolean fromUser) {
                                     colorMap.put(PROGRESS_COLOR,envelope.getColor());
                                     progressColorColorView.setColorFilter(envelope.getColor());
+                                    reloadPreview();
                                 }
                             })
                     .show();
+        }
+    };
+
+    View.OnFocusChangeListener textOnFocusChangeListener = new View.OnFocusChangeListener() {
+        @Override
+        public void onFocusChange(View v, boolean hasFocus) {
+            if (!hasFocus) {
+                reloadPreview();
+            }
         }
     };
 
@@ -250,6 +274,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
 
     private void setupUiBindings() {
         mAppWidgetText = binding.appwidgetText;
+        mAppWidgetText.setOnFocusChangeListener(textOnFocusChangeListener);
         datePickerButtonBinding = binding.datePickerButton;
         mAppWidgetDate = datePickerButtonBinding.datePickerText;
         datePickerButtonBinding.getRoot().setOnClickListener(mDateOnClickListener);
@@ -269,8 +294,20 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
         progressColorColorView = progressColorPickerButtonBinding.textColorDisplay;
         progressColorPickerButtonBinding.getRoot().setOnClickListener(progressColorClickListener);
         mAppWidgetDate.setOnClickListener(mDateOnClickListener);
+        previewImageView = binding.previewImageView;
         binding.addButton.setOnClickListener(mOnClickListener);
+        licenseButton = binding.licenses;
+        licenseButton.setOnClickListener(licenseOnClickListener);
+        reloadPreview();
     }
+
+    View.OnClickListener licenseOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            startActivity(new Intent(CountdownWidgetConfigureActivity.this, OssLicensesMenuActivity.class));
+        }
+    };
+
 
     private static void setupColorMap() {
         if (!colorMap.containsKey(TEXT_COLOR)) {
@@ -288,15 +325,25 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
         final Context context = CountdownWidgetConfigureActivity.this;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         if (!prefs.getAll().isEmpty()) {
-            colorMap.put(TEXT_COLOR, prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + mAppWidgetId, Color.BLACK));
-            colorMap.put(BACKGROUND_COLOR, prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + mAppWidgetId, Color.BLACK));
-            colorMap.put(PROGRESS_COLOR, prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + mAppWidgetId, Color.BLACK));
+            colorMap.put(TEXT_COLOR, prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + mAppWidgetId, Color.BLUE));
+            colorMap.put(BACKGROUND_COLOR, prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + mAppWidgetId, Color.GRAY));
+            colorMap.put(PROGRESS_COLOR, prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + mAppWidgetId, Color.CYAN));
             textColorColorView.setColorFilter(colorMap.get(TEXT_COLOR));
             backgroundColorColorView.setColorFilter(colorMap.get(BACKGROUND_COLOR));
             progressColorColorView.setColorFilter(colorMap.get(PROGRESS_COLOR));
-            mAppWidgetText.setText(prefs.getString(PREF_PREFIX_TEXT_KEY + mAppWidgetId, ""));
-            mAppWidgetDate.setText(String.format("%s: %s",getString(R.string.event_date),prefs.getString(PREF_PREFIX_DATE_KEY + mAppWidgetId, "")));
+            mAppWidgetText.setText(prefs.getString(PREF_PREFIX_TEXT_KEY + mAppWidgetId, "Event Title"));
+            mAppWidgetDate.setText(String.format("%s: %s",getString(R.string.event_date),prefs.getString(PREF_PREFIX_DATE_KEY + mAppWidgetId, myDateFormatter.format(LocalDate.now()))));
         }
+        reloadPreview();
+    }
+
+    private void reloadPreview() {
+        String countdownEventString = mAppWidgetText.getText().toString();
+        int textColor = colorMap.get(TEXT_COLOR);
+        int progressColor = colorMap.get(PROGRESS_COLOR);
+        int backgroundColor = colorMap.get(BACKGROUND_COLOR);
+        Bitmap bitmap = getWidgetPreviewBitmap(countdownEventString, textColor, progressColor, backgroundColor);
+        previewImageView.setImageBitmap(bitmap);
     }
 
 }
