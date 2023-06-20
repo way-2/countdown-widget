@@ -10,9 +10,11 @@ import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PR
 import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetBitmap;
 import static java.time.temporal.ChronoUnit.DAYS;
 
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -20,10 +22,13 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.text.TextPaint;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import androidx.work.Data;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -70,6 +75,11 @@ public class CountdownWidget extends AppWidgetProvider {
         views.setViewPadding(R.id.parent, 0,0,0,0);
         views.setViewPadding(R.id.progress_bar_image_view, 0,0,0,0);
         views.setImageViewBitmap(R.id.progress_bar_image_view, getWidgetBitmap(context, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
+        Intent openExpandedView = new Intent(context, WidgetExpandedView.class);
+        openExpandedView.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        openExpandedView.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, openExpandedView, PendingIntent.FLAG_IMMUTABLE);
+        views.setOnClickPendingIntent(R.id.progress_bar_image_view, pendingIntent);
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);

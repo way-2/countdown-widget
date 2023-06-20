@@ -30,4 +30,5 @@
     <string name="calendar_icon"></string>
     <string name="preview">Preview\n</string>
     <string name="licenses">Licenses</string>
+    <string name="title_activity_widget_expanded_view">WidgetExpandedView</string>
 </resources>

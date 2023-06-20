@@ -10,8 +10,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Countdownwidget"
-        >
+        android:theme="@style/Theme.Countdownwidget">
+        <activity
+            android:name=".WidgetExpandedView"
+            android:exported="false"
+            android:label="@string/title_activity_widget_expanded_view"
+            android:theme="@style/Theme.Transparent" />
+
         <receiver
             android:name=".CountdownWidget"
             android:exported="false">
