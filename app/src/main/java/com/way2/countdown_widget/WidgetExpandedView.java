@@ -55,6 +55,7 @@ public class WidgetExpandedView extends AppCompatActivity {
             percent = (totalDays - daysLeft) / totalDays;
         }
         imageView = findViewById(R.id.large_image_view);
-        imageView.setImageBitmap(DrawBitmapUtil.getWidgetBitmap(this, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
+        imageView.setImageBitmap(DrawBitmapUtil.getExpandedWidgetBitmap(this, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
     }
+
 }

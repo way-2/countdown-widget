@@ -13,6 +13,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -41,7 +42,6 @@ import java.time.format.DateTimeParseException;
  * App Widget Configuration implemented in {@link CountdownWidgetConfigureActivity CountdownWidgetConfigureActivity}
  */
 public class CountdownWidget extends AppWidgetProvider {
-
     public static DateTimeFormatter myDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     static void updateAppWidget(Context context, AppWidgetManager appWidgetManager,
@@ -75,14 +75,20 @@ public class CountdownWidget extends AppWidgetProvider {
         views.setViewPadding(R.id.parent, 0,0,0,0);
         views.setViewPadding(R.id.progress_bar_image_view, 0,0,0,0);
         views.setImageViewBitmap(R.id.progress_bar_image_view, getWidgetBitmap(context, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
-        Intent openExpandedView = new Intent(context, WidgetExpandedView.class);
-        openExpandedView.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        openExpandedView.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, openExpandedView, PendingIntent.FLAG_IMMUTABLE);
-        views.setOnClickPendingIntent(R.id.progress_bar_image_view, pendingIntent);
+        views.setOnClickPendingIntent(R.id.progress_bar_image_view, getPendingSelfIntent(context, appWidgetId));
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    protected static PendingIntent getPendingSelfIntent(Context context, int id) {
+        ComponentName componentName = new ComponentName("com.way2.countdown_widget", "com.way2.countdown_widget.WidgetExpandedView");
+        Intent intent = new Intent(context, CountdownWidget.class);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setComponent(componentName);
+        intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
+        return PendingIntent.getActivity(context, id, intent, PendingIntent.FLAG_IMMUTABLE);
     }
 
     @Override

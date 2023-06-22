@@ -3,7 +3,6 @@ package com.way2.countdown_widget;
 import static android.app.PendingIntent.getActivity;
 import static com.way2.countdown_widget.CountdownWidget.myDateFormatter;
 import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetBitmap;
-import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetPreviewBitmap;
 
 import android.app.DatePickerDialog;
 import android.appwidget.AppWidgetManager;
@@ -342,7 +341,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
         int textColor = colorMap.get(TEXT_COLOR);
         int progressColor = colorMap.get(PROGRESS_COLOR);
         int backgroundColor = colorMap.get(BACKGROUND_COLOR);
-        Bitmap bitmap = getWidgetPreviewBitmap(countdownEventString, textColor, progressColor, backgroundColor);
+        Bitmap bitmap = getWidgetBitmap(getApplicationContext(), .4f, 4, countdownEventString, textColor, progressColor, backgroundColor);
         previewImageView.setImageBitmap(bitmap);
     }
 

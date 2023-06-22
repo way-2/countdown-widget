@@ -68,13 +68,13 @@ public class DrawBitmapUtil {
         return  bitmap;
     }
 
-    public static Bitmap getWidgetPreviewBitmap(String countdownEventString, int textColor, int progressColor, int backColor) {
-        Log.i("TEST_LOG", "getWidgetPreviewBitmap: [" + countdownEventString + "] - [" + textColor + "] - [" + progressColor + "] - [" + backColor + "]");
-        int width = 400;
-        int height = 400;
-        int stroke = 50;
-        int backStroke = 20;
+    public static Bitmap getExpandedWidgetBitmap(Context context, float percentage, float daysLeft, String countdownEventString, int textColor, int progressColor, int backColor) {
+        int width = 800;
+        int height = 800;
+        int stroke = 80;
+        int backStroke = 50;
         int padding = 0;
+        float density = context.getResources().getDisplayMetrics().density;
 
         //Paint for arc stroke.
         Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG | Paint.ANTI_ALIAS_FLAG);
@@ -89,13 +89,13 @@ public class DrawBitmapUtil {
 
         //Paint for text values.
         Paint mTextPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mTextPaint.setTextSize(120);
+        mTextPaint.setTextSize((int) (850 / density));
         mTextPaint.setColor(textColor);
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         mTextPaint.setTextAlign(Paint.Align.CENTER);
 
         TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextSize(80);
+        textPaint.setTextSize(400 / density);
         textPaint.setColor(textColor);
         textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
         textPaint.setTextAlign(Paint.Align.CENTER);
@@ -110,10 +110,10 @@ public class DrawBitmapUtil {
         canvas.drawArc(arc, 160, 220, false, backPaint);
         //Then draw arc progress with actual value.
         paint.setColor(progressColor);
-        float progressSweep = .3f * 220;
+        float progressSweep = percentage * 220;
         canvas.drawArc(arc, 160, progressSweep, false, paint);
         //Draw text value.
-        canvas.drawText(myDecimalFormat.format(10), bitmap.getWidth() / 2, (bitmap.getHeight() - mTextPaint.ascent() - stroke) / 2, mTextPaint);
+        canvas.drawText(myDecimalFormat.format(daysLeft), bitmap.getWidth() / 2, (bitmap.getHeight() - mTextPaint.ascent() - stroke) / 2, mTextPaint);
         //Draw widget title.
         canvas.drawText(TextUtils.ellipsize((CharSequence) countdownEventString,textPaint, (float) width, TextUtils.TruncateAt.END).toString(), bitmap.getWidth() / 2, bitmap.getHeight() - backStroke, textPaint);
         return  bitmap;
