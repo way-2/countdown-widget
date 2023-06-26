@@ -310,13 +310,13 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
 
     private static void setupColorMap() {
         if (!colorMap.containsKey(TEXT_COLOR)) {
-            colorMap.put(TEXT_COLOR, Color.BLACK);
+            colorMap.put(TEXT_COLOR, Color.rgb(255,255,255));
         }
         if (!colorMap.containsKey(BACKGROUND_COLOR)) {
-            colorMap.put(BACKGROUND_COLOR, Color.BLACK);
+            colorMap.put(BACKGROUND_COLOR, Color.rgb(150,150,150));
         }
         if (!colorMap.containsKey(PROGRESS_COLOR)) {
-            colorMap.put(PROGRESS_COLOR, Color.BLACK);
+            colorMap.put(PROGRESS_COLOR, Color.rgb(66, 135, 245));
         }
     }
 
@@ -324,9 +324,9 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
         final Context context = CountdownWidgetConfigureActivity.this;
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, 0);
         if (!prefs.getAll().isEmpty()) {
-            colorMap.put(TEXT_COLOR, prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + mAppWidgetId, Color.BLUE));
-            colorMap.put(BACKGROUND_COLOR, prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + mAppWidgetId, Color.GRAY));
-            colorMap.put(PROGRESS_COLOR, prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + mAppWidgetId, Color.CYAN));
+            colorMap.put(TEXT_COLOR, prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + mAppWidgetId, Color.rgb(255,255,255)));
+            colorMap.put(BACKGROUND_COLOR, prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + mAppWidgetId, Color.rgb(150,150,150)));
+            colorMap.put(PROGRESS_COLOR, prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + mAppWidgetId, Color.rgb(66, 135, 245)));
             textColorColorView.setColorFilter(colorMap.get(TEXT_COLOR));
             backgroundColorColorView.setColorFilter(colorMap.get(BACKGROUND_COLOR));
             progressColorColorView.setColorFilter(colorMap.get(PROGRESS_COLOR));

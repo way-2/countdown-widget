@@ -50,9 +50,9 @@ public class CountdownWidget extends AppWidgetProvider {
         String countdownDateString = prefs.getString(PREF_PREFIX_DATE_KEY + appWidgetId, LocalDate.now().format(myDateFormatter));
         String startedDateString = prefs.getString(PREF_PREFIX_START_DATE_KEY + appWidgetId, LocalDate.now().format(myDateFormatter));
         String countdownEventString = prefs.getString(PREF_PREFIX_TEXT_KEY + appWidgetId, "Example");
-        int textColor = prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + appWidgetId, Color.BLACK);
-        int progressColor = prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + appWidgetId, Color.BLACK);
-        int backgroundColor = prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + appWidgetId, Color.BLACK);
+        int textColor = prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + appWidgetId, Color.rgb(255,255,255));
+        int progressColor = prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + appWidgetId, Color.rgb(66, 135, 245));
+        int backgroundColor = prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + appWidgetId, Color.rgb(150,150,150));
         LocalDate countdownDate = null;
         LocalDate startedDate = null;
         try {

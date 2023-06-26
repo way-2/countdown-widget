@@ -18,6 +18,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
@@ -25,6 +26,7 @@ import java.time.format.DateTimeParseException;
 public class WidgetExpandedView extends AppCompatActivity {
 
     ImageView imageView;
+    TextView titleTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +57,10 @@ public class WidgetExpandedView extends AppCompatActivity {
             percent = (totalDays - daysLeft) / totalDays;
         }
         imageView = findViewById(R.id.large_image_view);
-        imageView.setImageBitmap(DrawBitmapUtil.getExpandedWidgetBitmap(this, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
+        imageView.setImageBitmap(DrawBitmapUtil.getExpandedWidgetBitmap(this, percent, daysLeft, textColor, progressColor, backgroundColor));
+        titleTextView = findViewById(R.id.title_text);
+        titleTextView.setText(countdownEventString);
+        titleTextView.setTextColor(textColor);
     }
 
 }

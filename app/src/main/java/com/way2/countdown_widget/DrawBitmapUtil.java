@@ -68,7 +68,7 @@ public class DrawBitmapUtil {
         return  bitmap;
     }
 
-    public static Bitmap getExpandedWidgetBitmap(Context context, float percentage, float daysLeft, String countdownEventString, int textColor, int progressColor, int backColor) {
+    public static Bitmap getExpandedWidgetBitmap(Context context, float percentage, float daysLeft, int textColor, int progressColor, int backColor) {
         int width = 800;
         int height = 800;
         int stroke = 80;
@@ -94,12 +94,6 @@ public class DrawBitmapUtil {
         mTextPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
         mTextPaint.setTextAlign(Paint.Align.CENTER);
 
-        TextPaint textPaint = new TextPaint(Paint.ANTI_ALIAS_FLAG);
-        textPaint.setTextSize(400 / density);
-        textPaint.setColor(textColor);
-        textPaint.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.NORMAL));
-        textPaint.setTextAlign(Paint.Align.CENTER);
-
         final RectF arc = new RectF();
         arc.set((stroke/2) + padding, (stroke/2) + padding, width-padding-(stroke/2), height-padding-(stroke/2));
 
@@ -114,8 +108,6 @@ public class DrawBitmapUtil {
         canvas.drawArc(arc, 160, progressSweep, false, paint);
         //Draw text value.
         canvas.drawText(myDecimalFormat.format(daysLeft), bitmap.getWidth() / 2, (bitmap.getHeight() - mTextPaint.ascent() - stroke) / 2, mTextPaint);
-        //Draw widget title.
-        canvas.drawText(TextUtils.ellipsize((CharSequence) countdownEventString,textPaint, (float) width, TextUtils.TruncateAt.END).toString(), bitmap.getWidth() / 2, bitmap.getHeight() - backStroke, textPaint);
         return  bitmap;
     }
 
