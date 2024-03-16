@@ -31,6 +31,13 @@
     <include layout="@layout/color_picker_button"
         android:id="@+id/progress_color_picker"/>
 
+    <androidx.appcompat.widget.SwitchCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/weekend_toggle"
+        android:background="@drawable/color_picker_button_border"
+        />
+
     <Button
         android:id="@+id/add_button"
         android:layout_width="wrap_content"

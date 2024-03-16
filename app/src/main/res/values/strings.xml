@@ -31,4 +31,7 @@
     <string name="preview">Preview\n</string>
     <string name="licenses">Licenses</string>
     <string name="title_activity_widget_expanded_view">WidgetExpandedView</string>
+    <string name="toggle_weekends">Include/Exclude Weekends from count</string>
+    <string name="exclude_weekends">Exclude weekends from countdown</string>
+    <string name="include_weekends">Include weekends in countdown</string>
 </resources>

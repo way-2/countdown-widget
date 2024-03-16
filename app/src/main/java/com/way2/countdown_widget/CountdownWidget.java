@@ -7,6 +7,7 @@ import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PR
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_START_DATE_KEY;
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_TEXT_COLOR_KEY;
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_TEXT_KEY;
+import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_WEEKEND_TOGGLE_KEY;
 import static com.way2.countdown_widget.DrawBitmapUtil.getWidgetBitmap;
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -17,25 +18,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.RectF;
-import android.graphics.Typeface;
-import android.net.Uri;
-import android.text.TextPaint;
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import androidx.work.Data;
-
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalAdjusters;
 
 /**
  * Implementation of App Widget functionality.
@@ -53,6 +45,7 @@ public class CountdownWidget extends AppWidgetProvider {
         int textColor = prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + appWidgetId, Color.rgb(255,255,255));
         int progressColor = prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + appWidgetId, Color.rgb(66, 135, 245));
         int backgroundColor = prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + appWidgetId, Color.rgb(150,150,150));
+        boolean includeWeekends = prefs.getBoolean(PREF_PREFIX_WEEKEND_TOGGLE_KEY + appWidgetId, true);
         LocalDate countdownDate = null;
         LocalDate startedDate = null;
         try {
@@ -63,8 +56,15 @@ public class CountdownWidget extends AppWidgetProvider {
             countdownDate = LocalDate.now();
             startedDate = LocalDate.now();
         }
-        float totalDays = DAYS.between(startedDate, countdownDate);
-        float daysLeft = DAYS.between(LocalDate.now(), countdownDate);
+        float totalDays = (float) 0;
+        float daysLeft = (float) 0;
+        if (includeWeekends) {
+            totalDays = DAYS.between(startedDate, countdownDate);
+            daysLeft = DAYS.between(LocalDate.now(), countdownDate);
+        } else {
+            totalDays = getWorkingDaysWithoutStream(startedDate, countdownDate);
+            daysLeft = getWorkingDaysWithoutStream(LocalDate.now(), countdownDate);
+        }
         float percent = 1;
         if (daysLeft > 0) {
             percent = (totalDays - daysLeft) / totalDays;
@@ -79,6 +79,33 @@ public class CountdownWidget extends AppWidgetProvider {
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
+    }
+
+    private static float getWorkingDaysWithoutStream(LocalDate start, LocalDate end) {
+        boolean startOnWeekend = false;
+
+        // If starting at the weekend, move to following Monday
+        if(start.getDayOfWeek().getValue() > 5){
+            start = start.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+            startOnWeekend = true;
+        }
+        boolean endOnWeekend = false;
+        // If ending at the weekend, move to previous Friday
+        if(end.getDayOfWeek().getValue() > 5){
+            end = end.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
+            endOnWeekend = true;
+        }
+        // Cover case where starting on Saturday and ending following Sunday
+        if(start.isAfter(end)){
+            return 0;
+        }
+        // Get total weeks
+        long weeks = ChronoUnit.WEEKS.between(start, end);
+
+        long addValue = startOnWeekend || endOnWeekend ? 1 : 0;
+
+        // Add on days that did not make up a full week
+        return ( weeks * 5 ) + ( end.getDayOfWeek().getValue() - start.getDayOfWeek().getValue() ) + addValue;
     }
 
     protected static PendingIntent getPendingSelfIntent(Context context, int id) {

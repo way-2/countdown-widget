@@ -17,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.skydoves.colorpickerview.ColorEnvelope;
@@ -54,6 +56,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
     public static final String PREF_PREFIX_TEXT_COLOR_KEY = "appwidget_text_color_";
     public static final String PREF_PREFIX_PROGRESS_COLOR_KEY = "appwidget_progress_color_";
     public static final String PREF_PREFIX_BACK_COLOR_KEY = "appwidget_back_color_";
+    public static final String PREF_PREFIX_WEEKEND_TOGGLE_KEY = "appwidget_weekend_toggle_";
     public static final String BACKGROUND_COLOR = "BACKGROUND_COLOR";
     public static final String PROGRESS_COLOR = "PROGRESS_COLOR";
     public static final String TEXT_COLOR = "TEXT_COLOR";
@@ -74,6 +77,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
     DatePickerButtonBinding datePickerButtonBinding;
     AppCompatImageView previewImageView;
     Button licenseButton;
+    SwitchCompat toggleWeekendSwitch;
     View.OnClickListener mOnClickListener = new View.OnClickListener() {
         public void onClick(View v) {
             final Context context = CountdownWidgetConfigureActivity.this;
@@ -87,6 +91,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
             saveBackColorPerf(context, mAppWidgetId, colorMap.get(BACKGROUND_COLOR));
             saveProgressColorPerf(context, mAppWidgetId, colorMap.get(PROGRESS_COLOR));
             saveStartDatePerf(context, mAppWidgetId, LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+            saveIncludeWeekendPerf(context, mAppWidgetId, toggleWeekendSwitch.isChecked());
 
             // It is the responsibility of the configuration activity to update the app widget
             WorkManagerService.getInstance().startWork(context, mAppWidgetId);
@@ -100,6 +105,12 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
             finish();
         }
     };
+
+    private void saveIncludeWeekendPerf(Context context, int appWidgetId, boolean includeWeekends) {
+        SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
+        prefs.putBoolean(PREF_PREFIX_WEEKEND_TOGGLE_KEY + appWidgetId, includeWeekends);
+        prefs.apply();
+    }
 
     private void saveProgressColorPerf(Context context, int appWidgetId, int widgetProgressColor) {
         SharedPreferences.Editor prefs = context.getSharedPreferences(PREFS_NAME, 0).edit();
@@ -297,8 +308,22 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
         binding.addButton.setOnClickListener(mOnClickListener);
         licenseButton = binding.licenses;
         licenseButton.setOnClickListener(licenseOnClickListener);
+        toggleWeekendSwitch = binding.weekendToggle;
+        toggleWeekendSwitch.setOnCheckedChangeListener(mToggleOnCheckChangedListener);
+        toggleWeekendSwitch.setText(toggleWeekendSwitch.isChecked()?R.string.include_weekends:R.string.exclude_weekends);
         reloadPreview();
     }
+
+    CompoundButton.OnCheckedChangeListener mToggleOnCheckChangedListener = new CompoundButton.OnCheckedChangeListener() {
+        @Override
+        public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+            if (b) {
+                toggleWeekendSwitch.setText(R.string.include_weekends);
+            } else {
+                toggleWeekendSwitch.setText(R.string.exclude_weekends);
+            }
+        }
+    };
 
     View.OnClickListener licenseOnClickListener = new View.OnClickListener() {
         @Override
@@ -332,6 +357,7 @@ public class CountdownWidgetConfigureActivity extends AppCompatActivity {
             progressColorColorView.setColorFilter(colorMap.get(PROGRESS_COLOR));
             mAppWidgetText.setText(prefs.getString(PREF_PREFIX_TEXT_KEY + mAppWidgetId, "Event Title"));
             mAppWidgetDate.setText(String.format("%s: %s",getString(R.string.event_date),prefs.getString(PREF_PREFIX_DATE_KEY + mAppWidgetId, myDateFormatter.format(LocalDate.now()))));
+            toggleWeekendSwitch.setChecked(prefs.getBoolean(PREF_PREFIX_WEEKEND_TOGGLE_KEY + mAppWidgetId, true));
         }
         reloadPreview();
     }
