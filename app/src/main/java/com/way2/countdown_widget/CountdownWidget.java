@@ -46,66 +46,18 @@ public class CountdownWidget extends AppWidgetProvider {
         int progressColor = prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + appWidgetId, Color.rgb(66, 135, 245));
         int backgroundColor = prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + appWidgetId, Color.rgb(150,150,150));
         boolean includeWeekends = prefs.getBoolean(PREF_PREFIX_WEEKEND_TOGGLE_KEY + appWidgetId, true);
-        LocalDate countdownDate = null;
-        LocalDate startedDate = null;
-        try {
-            countdownDate = LocalDate.parse(countdownDateString, myDateFormatter);
-            startedDate = LocalDate.parse(startedDateString, myDateFormatter);
-        } catch (DateTimeParseException dateTimeParseException) {
-            Log.w("ERROR", "updateAppWidget: Cannot parse dates using current date");
-            countdownDate = LocalDate.now();
-            startedDate = LocalDate.now();
-        }
-        float totalDays = (float) 0;
-        float daysLeft = (float) 0;
-        if (includeWeekends) {
-            totalDays = DAYS.between(startedDate, countdownDate);
-            daysLeft = DAYS.between(LocalDate.now(), countdownDate);
-        } else {
-            totalDays = getWorkingDaysWithoutStream(startedDate, countdownDate);
-            daysLeft = getWorkingDaysWithoutStream(LocalDate.now(), countdownDate);
-        }
-        float percent = 1;
-        if (daysLeft > 0) {
-            percent = (totalDays - daysLeft) / totalDays;
-        }
+
+        Utils.DaysLeftCalculations daysLeftCalculations = Utils.calculatePercentLeft(countdownDateString, startedDateString, includeWeekends);
 
         // Construct the RemoteViews object
         RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.countdown_widget);
         views.setViewPadding(R.id.parent, 0,0,0,0);
         views.setViewPadding(R.id.progress_bar_image_view, 0,0,0,0);
-        views.setImageViewBitmap(R.id.progress_bar_image_view, getWidgetBitmap(context, percent, daysLeft, countdownEventString, textColor, progressColor, backgroundColor));
+        views.setImageViewBitmap(R.id.progress_bar_image_view, getWidgetBitmap(context, daysLeftCalculations.getPercent(), daysLeftCalculations.getDaysLeft(), countdownEventString, textColor, progressColor, backgroundColor));
         views.setOnClickPendingIntent(R.id.progress_bar_image_view, getPendingSelfIntent(context, appWidgetId));
 
         // Instruct the widget manager to update the widget
         appWidgetManager.updateAppWidget(appWidgetId, views);
-    }
-
-    private static float getWorkingDaysWithoutStream(LocalDate start, LocalDate end) {
-        boolean startOnWeekend = false;
-
-        // If starting at the weekend, move to following Monday
-        if(start.getDayOfWeek().getValue() > 5){
-            start = start.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-            startOnWeekend = true;
-        }
-        boolean endOnWeekend = false;
-        // If ending at the weekend, move to previous Friday
-        if(end.getDayOfWeek().getValue() > 5){
-            end = end.with(TemporalAdjusters.previous(DayOfWeek.FRIDAY));
-            endOnWeekend = true;
-        }
-        // Cover case where starting on Saturday and ending following Sunday
-        if(start.isAfter(end)){
-            return 0;
-        }
-        // Get total weeks
-        long weeks = ChronoUnit.WEEKS.between(start, end);
-
-        long addValue = startOnWeekend || endOnWeekend ? 1 : 0;
-
-        // Add on days that did not make up a full week
-        return ( weeks * 5 ) + ( end.getDayOfWeek().getValue() - start.getDayOfWeek().getValue() ) + addValue;
     }
 
     protected static PendingIntent getPendingSelfIntent(Context context, int id) {

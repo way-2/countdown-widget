@@ -8,6 +8,7 @@ import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PR
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_START_DATE_KEY;
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_TEXT_COLOR_KEY;
 import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_TEXT_KEY;
+import static com.way2.countdown_widget.CountdownWidgetConfigureActivity.PREF_PREFIX_WEEKEND_TOGGLE_KEY;
 import static java.time.temporal.ChronoUnit.DAYS;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -40,24 +41,12 @@ public class WidgetExpandedView extends AppCompatActivity {
         int textColor = prefs.getInt(PREF_PREFIX_TEXT_COLOR_KEY + id, Color.BLACK);
         int progressColor = prefs.getInt(PREF_PREFIX_PROGRESS_COLOR_KEY + id, Color.BLACK);
         int backgroundColor = prefs.getInt(PREF_PREFIX_BACK_COLOR_KEY + id, Color.BLACK);
-        LocalDate countdownDate = null;
-        LocalDate startedDate = null;
-        try {
-            countdownDate = LocalDate.parse(countdownDateString, myDateFormatter);
-            startedDate = LocalDate.parse(startedDateString, myDateFormatter);
-        } catch (DateTimeParseException dateTimeParseException) {
-            Log.w("ERROR", "updateAppWidget: Cannot parse dates using current date");
-            countdownDate = LocalDate.now();
-            startedDate = LocalDate.now();
-        }
-        float totalDays = DAYS.between(startedDate, countdownDate);
-        float daysLeft = DAYS.between(LocalDate.now(), countdownDate);
-        float percent = 1;
-        if (daysLeft > 0) {
-            percent = (totalDays - daysLeft) / totalDays;
-        }
+        boolean includeWeekends = prefs.getBoolean(PREF_PREFIX_WEEKEND_TOGGLE_KEY + id, true);
+
+        Utils.DaysLeftCalculations daysLeftCalculations = Utils.calculatePercentLeft(countdownDateString, startedDateString, includeWeekends);
+
         imageView = findViewById(R.id.large_image_view);
-        imageView.setImageBitmap(DrawBitmapUtil.getExpandedWidgetBitmap(this, percent, daysLeft, textColor, progressColor, backgroundColor));
+        imageView.setImageBitmap(DrawBitmapUtil.getExpandedWidgetBitmap(this, daysLeftCalculations.getPercent(), daysLeftCalculations.getDaysLeft(), textColor, progressColor, backgroundColor));
         titleTextView = findViewById(R.id.title_text);
         titleTextView.setText(countdownEventString);
         titleTextView.setTextColor(textColor);
